@@ -2,7 +2,9 @@ const { isValidObjectId } = require("mongoose");
 const bookModel = require("../model/bookModel")
 const reviewModel = require("../model/reviewModel")
 const moment = require("moment")
-const { checkISBN, checkDate, validTitleBooks } = require("../validator/validation")
+const { checkISBN, checkDate, validTitleBooks } = require("../validator/validation");
+const { uploadFile } = require("../aws");
+const { urlencoded } = require("express");
 
 
 
@@ -14,10 +16,12 @@ const { checkISBN, checkDate, validTitleBooks } = require("../validator/validati
 const createBook = async (req, res) => {
     try {
         let data = req.body;
+        let files = req.files;
+
         if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, message: "Please provide book details to create user" }) }
 
-        const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = data
-
+        const { title, excerpt, userId, ISBN, category, subcategory, releasedAt} = data
+ 
         if (!userId) { return res.status(400).send({ status: false, message: 'userId is Required' }) }
         if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, message: "Please enter valid userId" }) }
 
@@ -25,13 +29,13 @@ const createBook = async (req, res) => {
         if (req.decodedToken.userId != userId) { return res.status(403).send({ status: false, msg: "Not Authorized !" }) }
 
         //title validation.......
-        if (!title) { return res.status(400).send({ status: false, message: 'Title is required' })}
+        if (!title) { return res.status(400).send({ status: false, message: 'Title is required' }) }
         if (!validTitleBooks(title)) { return res.status(400).send({ status: false, message: 'Please enter a valid Title' }) }
 
         const bookData = await bookModel.findOne({ title: title })
         if (bookData) { return res.status(400).send({ status: false, message: "Title is already presents, please enter another title" }) }
 
-        if (!excerpt) { return res.status(400).send({ status: false, message: 'Excerpt is required' })}
+        if (!excerpt) { return res.status(400).send({ status: false, message: 'Excerpt is required' }) }
 
         //ISBN number validation......
         if (!ISBN) { return res.status(400).send({ status: false, message: 'ISBN is Required' }) }
@@ -46,9 +50,12 @@ const createBook = async (req, res) => {
         if (!releasedAt) { return res.status(400).send({ status: false, message: 'releasedAt is Required' }) }
         if (!checkDate(releasedAt)) { return res.status(400).send({ status: false, message: "Please enter a valid date" }) }
 
-        if(data.isDeleted){
+        if (data.isDeleted) {
             data.deletedAt = moment().format('YYYY-MM-DD')
         }
+
+        let url = await uploadFile(files[0])
+        data.bookCover = url;
         
         const result = await bookModel.create(data)
         return res.status(201).send({ status: true, message: 'Success', data: result })
@@ -71,7 +78,7 @@ const getBook = async (req, res) => {
         if (data.userId) {
             if (!isValidObjectId(data.userId)) { return res.status(400).send({ status: false, message: "Please enter valid userId" }) }
         }
-        
+
         let result = await bookModel.find(data).select({ ISBN: 0, subcategory: 0, deletedAt: 0, isDeleted: 0, createdAt: 0, updatedAt: 0, __v: 0 }).sort({ title: 1 })
         if (result.length == 0) { return res.status(404).send({ status: false, message: "No such Books found" }) }
 
@@ -123,24 +130,24 @@ const updateBook = async (req, res) => {
 
         let { title, excerpt, releasedAt, ISBN } = data;
 
-        for(let i=0; i<arr.length; i++){
+        for (let i = 0; i < arr.length; i++) {
             let msg = ["title", "excerpt", "releasedAt", "ISBN"].includes(arr[i])
-            if(msg == false){return res.status(400).send({status:false, message:"It update only title, excerpt, releasedAt and ISBN"})}
+            if (msg == false) { return res.status(400).send({ status: false, message: "It update only title, excerpt, releasedAt and ISBN" }) }
         }
 
-        if (title || title=="") {
+        if (title || title == "") {
             if (!validTitleBooks(title)) { return res.status(400).send({ status: false, message: 'Please enter a valid Title' }) }
             const bookData = await bookModel.findOne({ title: title })
             if (bookData) { return res.status(400).send({ status: false, message: "Title is already presents, please enter another title" }) }
         }
-        if(excerpt || excerpt==""){
-            if(!excerpt){return res.status(400).send({status:false, message:"excerpt can't be empty"})}
+        if (excerpt || excerpt == "") {
+            if (!excerpt) { return res.status(400).send({ status: false, message: "excerpt can't be empty" }) }
         }
 
-        if (releasedAt || releasedAt=="") {
+        if (releasedAt || releasedAt == "") {
             if (!checkDate(releasedAt)) { return res.status(400).send({ status: false, message: "Please enter a valid date" }) }
         }
-        if (ISBN || ISBN=="") {
+        if (ISBN || ISBN == "") {
             if (!checkISBN(ISBN)) { return res.status(400).send({ status: false, message: "Please enter a valid ISBN number" }) }
         }
 
@@ -178,3 +185,7 @@ const deleteBook = async function (req, res) {
 
 
 module.exports = { createBook, getBook, getBookById, updateBook, deleteBook }
+
+
+
+ 

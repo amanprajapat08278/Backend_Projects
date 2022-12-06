@@ -28,7 +28,7 @@ function checkName(str) {
     let bool =  re.test(str.trim());
     if(bool==true){
         str = str.trim()
-        str= str.replace(str[0], str[0].toUpperCase())
+        str= str.replace(str[0], str[0].toUpperCase())  
         return str
     }else{
         return false

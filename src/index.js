@@ -1,11 +1,16 @@
 const express = require("express")
 const mongoose = require("mongoose")
 const route = require("./route/route")
+const multer = require("multer")
+
 const app = express()
+app.use(multer().any())
 
 app.use(express.json())
 
 app.use("/", route)
+
+
 
 mongoose.connect("mongodb+srv://amanprajapat82780:Lucky82780@newproject.3qdy8y3.mongodb.net/group17Database?retryWrites=true&w=majority",{
     useNewUrlParser:true

@@ -1,34 +1,52 @@
-//Input: s = "A man, a plan, a canal: Panama"
 
 
-var isPalindrome = function(s) {
-    let x = s.match(/[a-z]/gi)
-    let str1 = ''
-    let  str2 = ""
-    x.forEach(x=>str1+=x)
-    for(let i=x.length-1; i>=0; i--){
-        str2+=x[i]
+// Input:
+
+// 3
+
+// 10 20 30
+
+// 60 100 120
+
+// 5
+
+function run(a1, a2, n){
+    let sum = 0;
+    let total = 0;
+    for(let i=0; i<a1.length; i++){
+        for(let j=i+1; j<a2.length; j++){
+            
+        }
     }
-   //let str1 = x.join("").toLowerCase()
-   //let str2 = x.reverse().join("").toLowerCase()
-   if(str1.toLowerCase()==str2.toLowerCase()){return true}
-   else{return false}
-};
- //console.log(isPalindrome("A man, a plan, a canal: Panama"))
-
-
- let v = {
-    name :"   aman     "
- }
-
- v.name = v.name.trim()
- //console.log(v.name)
-
-
- ///^[A-Za-z0-9\s\-_,\.;:()]+$/
-
- const validTitleBooks=function(title){
-    const regexTittle=/^[A-Za-z0-9\s\-_,\.;?:()]+$/
-    return regexTittle.test(title)
+    return sum
 }
-console.log(validTitleBooks("Life is?"))
+//console.log(run([10,20,30],[60,100,120],50))
+
+function koi(n){
+      let x = n/2
+      return Math.floor(x)
+}
+//console.log(koi(5))
+
+
+var findComplement = function(num) {
+
+    var bin = num.toString(2);
+  
+    bin = bin.split('');
+
+    var answer = [];
+  
+    for (var i = 0; i < bin.length; i++) {
+      if (bin[i] == '0') {
+        answer.push(1);
+      } else {
+        answer.push(0)
+      }
+    }
+    
+    return parseInt(answer.join(''),2);
+  
+  };
+  
+  console.log(findComplement(5));

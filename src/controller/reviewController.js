@@ -28,12 +28,15 @@ const createReview = async (req, res) => {
         } else {
             data.reviewedBy = "Guest"
         }
-
+        
+        
         if (rating !=0 && !rating ) { return res.status(400).send({ status: false, message: "Please enter rating" }) }
+        
+        rating = Number(rating)
         if (rating < 1 || rating > 5 || typeof (rating) != "number") {
             { return res.status(400).send({ status: false, message: "Please enter rating between 1 to 5" }) }
         } 
-
+        
         data.bookId = bookId
         data.reviewedAt = moment().format("YYYY-MM-DD")
 
@@ -42,7 +45,7 @@ const createReview = async (req, res) => {
         let updateBook = await bookModel.findByIdAndUpdate(bookId, { $inc: { reviews: 1 } }, { new: true }).lean()
 
         updateBook.reviewsData = [reviewsData]
-        res.status(201).send({ status: true, message: 'Success', data: updateBook })
+        return res.status(201).send({ status: true, message: 'Success', data: updateBook })
 
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
