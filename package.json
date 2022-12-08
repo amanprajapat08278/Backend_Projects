@@ -1,5 +1,5 @@
 {
-  "name": "project__1",
+  "name": "projects",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,18 +8,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/amanprajapat08278/Project__1.git"
+    "url": "git+https://github.com/amanprajapat08278/Projects.git"
   },
-  "author": "aman",
+  "author": "Aman",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/amanprajapat08278/Project__1/issues"
+    "url": "https://github.com/amanprajapat08278/Projects/issues"
   },
-  "homepage": "https://github.com/amanprajapat08278/Project__1#readme",
+  "homepage": "https://github.com/amanprajapat08278/Projects#readme",
   "dependencies": {
-    "body-parser": "^1.20.1",
+    "axios": "^1.2.1",
     "express": "^4.18.2",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.7.2"
+    "mongoose": "^6.8.0",
+    "nodemon": "^2.0.20"
   }
 }
