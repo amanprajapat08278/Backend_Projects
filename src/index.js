@@ -1,19 +1,17 @@
 const express = require("express")
-const bodyParser = require("body-parser")
-const {default:mongoose} = require("mongoose")
-const route = require("./router/router")
+const mongoose = require("mongoose")
+const route = require("./route/route")
 const app = express()
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended:true}))
+app.use(express.json())
 
 app.use("/", route)
 
-mongoose.connect("mongodb+srv://amanprajapat82780:Lucky82780@newproject.3qdy8y3.mongodb.net/project_1?retryWrites=true&w=majority",{
+mongoose.connect("mongodb+srv://amanprajapat82780:Lucky82780@newproject.3qdy8y3.mongodb.net/group17Database?retryWrites=true&w=majority",{
     useNewUrlParser:true
-}).then(()=>{console.log("Mongoose connected")})
+}).then(()=>console.log("Mongoose Connected"))
 .catch((err)=>console.log(err))
 
-app.listen(process.env.PORT||4000, ()=>{
-    console.log("server run on "+(process.env.PORT||4000))
+app.listen(3000, ()=>{
+    console.log("Server runnig on ", 3000)
 })
