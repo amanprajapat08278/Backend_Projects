@@ -1,50 +1,42 @@
 const urlModel = require("../model/urlModel")
 let shortId = require("shortid")
 const validUrl = require('valid-url')
+const urlExists = require("url-exists");
+let axios = require("axios")
 
 
-
-const createUrl = async (req, res) => {
+const creatUrl = async (req, res) => {
 
     try {
         let data = req.body
         if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, message: "Please enter URL" }) }
 
-        let longUrl = data.longUrl
-        if (typeof (longUrl) != "string" || !validUrl.isUri(longUrl)) { return res.status(400).send({ status: false, message: "Please enter valid URL" }) }
-        
-        // alive or not 
+        let longUrl = data.longUrl.trim()
+        if (typeof(longUrl) != "string" || !validUrl.isUri(longUrl)) { return res.status(400).send({ status: false, message: "Please enter valid URL" }) }
 
-
-        let options = {
-            method: "GET",
-            url: longUrl
-        }
-
-        let axiosData = await axios(options)
-        console.log(axiosData.data)
-
-
+        let axiosData = await axios.get(longUrl).catch(() => null)
+       
+        if (!axiosData) { return res.status(404).send({ status: false, message: `Error! Link Not Found ${longUrl}`}) }
 
         let doxByUrl = await urlModel.findOne({ longUrl: longUrl }).select({ __v: 0, _id: 0 })
-        if (doxByUrl) { return res.status(200).send({ data: doxByUrl }) }
+        if (doxByUrl) { return res.status(200).send({ data: doxByUrl })}
 
         let urlCode = shortId.generate()
         urlCode = (urlCode.toLowerCase()).trim()
 
         let shortUrl = `http://localhost:3000/${urlCode}`
 
-        data.urlCode = urlCode
         data.shortUrl = shortUrl
+        data.urlCode = urlCode
 
-        let result = await urlModel.create(data)
+        await urlModel.create(data)
+        res.status(201).send({ data: data })
 
-        res.status(201).send({ data: result })
-        
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
     }
 }
+
 
 
 const getUrl = async (req, res) => {
@@ -54,9 +46,9 @@ const getUrl = async (req, res) => {
     let result = await urlModel.findOne({ urlCode: urlCode })
     if (!result) { return res.status(404).send({ status: false, message: "URL not found" }) }
 
-    return res.redirect(result.longUrl)
+    return res.status(302).redirect(result.longUrl)
 }
 
 
 
-module.exports = { createUrl, getUrl }
+module.exports = { creatUrl, getUrl }
