@@ -8,6 +8,25 @@ const { promisify } = require("util")
 
 
 
+//----------------- Radis functions --------------------//
+
+const redisClient = redis.createClient(13190, "redis-13190.c301.ap-south-1-1.ec2.cloud.redislabs.com", { no_ready_check: true });
+
+redisClient.auth("gkiOIPkytPI3ADi14jHMSWkZEo2J5TDG", (err) => {
+    if (err) throw err;
+});
+
+redisClient.on("connect", async () => {
+    console.log("Redis connnected")
+})
+
+
+const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
+const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
+
+
+
+
 //-----------------Create Short URL API--------------------//
 
 const creatUrl = async (req, res) => {
@@ -23,9 +42,17 @@ const creatUrl = async (req, res) => {
 
         if (!axiosData) { return res.status(404).send({ status: false, message: `Error! Link Not Found ${longUrl}` }) }
 
-        let doxByUrl = await urlModel.findOne({ longUrl: longUrl }).select({ __v: 0, _id: 0 })
-        if (doxByUrl) { return res.status(200).send({ data: doxByUrl }) }
 
+        let dataByRadis = await GET_ASYNC(`${longUrl}`)
+        if(dataByRadis){
+            dataByRadis = JSON.parse(dataByRadis)
+            return res.status(200).send(dataByRadis)
+        }else{
+            let doxByUrl = await urlModel.findOne({ longUrl: longUrl }).select({ __v: 0, _id: 0 })
+            await SET_ASYNC(`${longUrl}`, JSON.stringify(doxByUrl))
+            if (doxByUrl) { return res.status(200).send({ data: doxByUrl }) }
+        }
+        
         let urlCode = shortId.generate()
         urlCode = (urlCode.toLowerCase()).trim()
 
@@ -33,6 +60,8 @@ const creatUrl = async (req, res) => {
 
         data.shortUrl = shortUrl
         data.urlCode = urlCode
+
+        await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
 
         await urlModel.create(data)
         res.status(201).send({ data: data })
@@ -44,21 +73,7 @@ const creatUrl = async (req, res) => {
 
 
 
-//----------------- Radis functions --------------------//
 
-const redisClient = redis.createClient(13190, "redis-13190.c301.ap-south-1-1.ec2.cloud.redislabs.com", { no_ready_check: true });
-
-redisClient.auth("gkiOIPkytPI3ADi14jHMSWkZEo2J5TDG", (err) => {
-    if (err) throw err;
-});
-
-redisClient.on("connect", async () => {
-    console.log("redis connnected")
-})
-
-
-const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
-const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 
 
