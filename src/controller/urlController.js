@@ -10,16 +10,15 @@ const { promisify } = require("util")
 
 //----------------- Radis functions --------------------//
 
-const redisClient = redis.createClient(13190, "redis-13190.c301.ap-south-1-1.ec2.cloud.redislabs.com", { no_ready_check: true });
+const redisClient = redis.createClient(13190, "redis-13190.c301.ap-south-1-1.ec2.cloud.redislabs.com");
 
 redisClient.auth("gkiOIPkytPI3ADi14jHMSWkZEo2J5TDG", (err) => {
-    if (err) throw err;
+    if (err) throw err.message;
 });
 
-redisClient.on("connect", async () => {
+redisClient.on("connect", () => {
     console.log("Redis connnected")
 })
-
 
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
@@ -44,15 +43,15 @@ const creatUrl = async (req, res) => {
 
 
         let dataByRadis = await GET_ASYNC(`${longUrl}`)
-        if(dataByRadis){
+        if (dataByRadis) {
             dataByRadis = JSON.parse(dataByRadis)
             return res.status(200).send(dataByRadis)
-        }else{
+        } else {
             let doxByUrl = await urlModel.findOne({ longUrl: longUrl }).select({ __v: 0, _id: 0 })
             await SET_ASYNC(`${longUrl}`, JSON.stringify(doxByUrl))
             if (doxByUrl) { return res.status(200).send({ data: doxByUrl }) }
         }
-        
+
         let urlCode = shortId.generate()
         urlCode = (urlCode.toLowerCase()).trim()
 
@@ -80,20 +79,24 @@ const creatUrl = async (req, res) => {
 //----------------- Get Short URL API --------------------//
 
 const getUrl = async (req, res) => {
-    let urlCode = req.params.urlCode
-    if (!shortId.isValid(urlCode)) { return res.status(400).send({ status: false, message: "Please enter valid url Code" }) }
+    try {
+        let urlCode = req.params.urlCode
+        if (!shortId.isValid(urlCode)) { return res.status(400).send({ status: false, message: "Please enter valid url Code" }) }
 
-    let dataByRadis = await GET_ASYNC(`${urlCode}`)
+        let dataByRadis = await GET_ASYNC(`${urlCode}`)
 
-    if (dataByRadis) {
-        dataByRadis = JSON.parse(dataByRadis)
-        return res.status(302).redirect(dataByRadis.longUrl)
-    }
-    else {
-        let result = await urlModel.findOne({ urlCode: urlCode })
-        if (!result) { return res.status(404).send({ status: false, message: "URL not found" }) }
-        await SET_ASYNC(`${urlCode}`, JSON.stringify(result))
-        return res.status(302).redirect(result.longUrl)
+        if (dataByRadis) {
+            dataByRadis = JSON.parse(dataByRadis)
+            return res.status(302).redirect(dataByRadis.longUrl)
+        }
+        else {
+            let result = await urlModel.findOne({ urlCode: urlCode })
+            if (!result) { return res.status(404).send({ status: false, message: "URL not found" }) }
+            await SET_ASYNC(`${urlCode}`, JSON.stringify(result))
+            return res.status(302).redirect(result.longUrl)
+        }
+    } catch (err) {
+        res.status(500).send({ status: false, message: err.message })
     }
 }
 
