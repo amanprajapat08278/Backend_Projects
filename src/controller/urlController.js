@@ -41,19 +41,18 @@ const creatUrl = async (req, res) => {
 
         if (!axiosData) { return res.status(404).send({ status: false, message: `Error! Link Not Found ${longUrl}` }) }
 
-
         let dataByRadis = await GET_ASYNC(`${longUrl}`)
+
         if (dataByRadis) {
             dataByRadis = JSON.parse(dataByRadis)
-            return res.status(200).send(dataByRadis)
+            return res.status(200).send({ data: dataByRadis })
         } else {
             let doxByUrl = await urlModel.findOne({ longUrl: longUrl }).select({ __v: 0, _id: 0 })
             await SET_ASYNC(`${longUrl}`, JSON.stringify(doxByUrl))
             if (doxByUrl) { return res.status(200).send({ data: doxByUrl }) }
         }
 
-        let urlCode = shortId.generate()
-        urlCode = (urlCode.toLowerCase()).trim()
+        let urlCode = shortId.generate().toLowerCase().trim()
 
         let shortUrl = `http://localhost:3000/${urlCode}`
 
@@ -63,14 +62,12 @@ const creatUrl = async (req, res) => {
         await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
 
         await urlModel.create(data)
-        res.status(201).send({ data: data })
+        res.status(201).json({ data: data })
 
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
     }
 }
-
-
 
 
 
