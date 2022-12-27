@@ -70,7 +70,7 @@ const updateOrder = async (req, res) => {
         if(!status){ return res.status(400).send({ status: false, message: "Status is mendatory !" }) }
 
         let enums = ["cancled","completed"]
-        if(!enums.includes(status)) { return res.status(400).send({ status: false, message: "Please enter valid status [pending, cancled, completed] !" }) }
+        if(!enums.includes(status)) { return res.status(400).send({ status: false, message: "Please enter valid status [cancled, completed] !" }) }
 
         let result = await orderModel.findOneAndUpdate({ userId: userId }, { $set: { status: status } }, { new: true })
         res.status(200).send({ status: true, message: "Success", data: result })
