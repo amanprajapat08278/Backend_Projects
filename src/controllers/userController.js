@@ -120,7 +120,7 @@ const loginUser = async (req, res) => {
     if (!validPassword(password)) { return res.status(400).send({ status: false, message: "Please enter valid password" }) }
 
     let checkPass = await bcrypt.compare(password, userExist.password)
-    
+
     if (!checkPass) { return res.status(400).send({ status: false, message: "Please enter correct password" }) }
 
     let token = jwt.sign({ userId: userExist._id, email: userExist.email, phone: userExist.phone }, "shopping", { expiresIn: "96h" })
@@ -198,16 +198,17 @@ const updateUser = async (req, res) => {
     if (checkphone) return res.status(400).send({ status: false, message: "Mobile number already exist" });
 
     if (password || password == "") {
-      if (!validPassword(password)) { return res.status(400).send({ status: false, msg: "Please enter valid password" }) }
+      if (!validPassword(password)) { return res.status(400).send({ status: false, message: "Please enter valid password" }) }
       const passwordHash = await bcrypt.hash(password, 5)
       data.password = passwordHash
     }
 
-    if (data.address || data.address=="") {
+    if (data.address || data.address == "") {
 
-      if(data.address==""){return res.status(400).send({status:false, message:"Address can't be empty !"})}
-      
+      if (data.address == "") { return res.status(400).send({ status: false, message: "Address can't be empty !" }) }
+
       let tempAddress = userProfile.address
+
       let { shipping, billing } = data.address
 
       if (shipping) {
@@ -251,3 +252,6 @@ const updateUser = async (req, res) => {
 
 
 module.exports = { createUser, loginUser, getUser, updateUser }
+
+
+

@@ -1,7 +1,8 @@
 const productModel = require('../models/productModel')
 const { uploadFile } = require("../aws/aws");
 const { isValidObjectId } = require('mongoose');
-const e = require('express');
+
+
 
 
 
@@ -132,7 +133,7 @@ const getProductById = async (req, res) => {
 
         if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: 'Invalid ProductId !' })
 
-        let product = await productModel.findById({ _id: productId, isDeleted: false })
+        let product = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!product) return res.status(404).send({ status: false, message: "Product not found !" })
 
         return res.status(200).send({ status: true, message: "Success", data: product })
@@ -257,3 +258,5 @@ const deleteProduct = async (req, res) => {
 
 
 module.exports = { createproduct, getProduct, getProductById, updateProduct, deleteProduct }
+
+

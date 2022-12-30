@@ -9,7 +9,7 @@ const authentication = async function (req, res, next) {
     try {
         let token = req.headers.authorization
 
-        if (!token) { return res.status(403).send({ status: false, msg: "Token is required" }); }
+        if (!token) { return res.status(400).send({ status: false, msg: "Token is required" }); }
 
         let mainToken = token.split(" ").pop()
 

@@ -13,7 +13,7 @@ const createOrder = async (req, res) => {
         let userId = req.userByUserId._id
         data.userId = userId
 
-        let {cancellable, status} = data
+        let {cancellable} = data
 
         let cart = await cartModel.findOne({ userId: userId })
         if(!cart){ return res.status(400).send({ status: false, message: "No cart exits for this user !" }) }
@@ -72,11 +72,11 @@ const updateOrder = async (req, res) => {
         let enums = ["cancled","completed"]
         if(!enums.includes(status)) { return res.status(400).send({ status: false, message: "Please enter valid status [cancled, completed] !" }) }
 
-        let result = await orderModel.findOneAndUpdate({ userId: userId }, { $set: { status: status } }, { new: true })
+        let result = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status } }, { new: true })
         res.status(200).send({ status: true, message: "Success", data: result })
 
     } catch (err) {
-        res.send({ status: false, message: err.message })
+        res.status(500).send({ status: false, message: err.message })
     }
 
 }
