@@ -16,6 +16,6 @@ mongoose.connect("mongodb+srv://amanprajapat82780:Lucky82780@newproject.3qdy8y3.
     .then(() => console.log("Mongoose Connected"))
     .catch((err) => console.log(err))
 
-app.listen((process.env.PORT || 3000), () => {
-    console.log("server running on ", (process.env.PORT || 3000))
+app.listen((process.env.PORT || 3001), () => {
+    console.log("server running on ", (process.env.PORT || 3001))
 })
