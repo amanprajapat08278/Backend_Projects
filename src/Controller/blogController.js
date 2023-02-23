@@ -1,6 +1,7 @@
 const { isValidObjectId } = require("mongoose");
 const blogModel = require("../models/blogModel");
-
+const {uploadFile} = require("../aws");
+const { RDS } = require("aws-sdk");
 
 
 
@@ -10,7 +11,8 @@ const createBlog = async function (req, res) {
 
     try {
         let data = req.body;
-        
+        let files = req.files;
+
         if(Object.keys(data).length==0){return res.status(400).send({status:false, msg: "Please enter detials to create blog"})};
 
         let { title, body, authorId, tags, category, subcategory } = data;
@@ -20,15 +22,18 @@ const createBlog = async function (req, res) {
         if (!authorId) { return res.status(400).send({ status: false, msg: "Please enter authorId" }) };
         if (!tags) { return res.status(400).send({ status: false, msg: "Please enter tags" }) };
         if (!category) { return res.status(400).send({ status: false, msg: "Please enter category" }) };
-        if (!subcategory) { return res.status(400).send({ status: false, msg: "Please enter subcategory" }) };
+        //if (!subcategory) { return res.status(400).send({ status: false, msg: "Please enter subcategory" }) };
 
         if (!isValidObjectId(authorId)) { return res.status(400).send({ status: false, msg: "Please enter valid authorId" }) };
        
-        if(typeof(tags)!="object" || typeof(subcategory)!="object"){return res.status(400).send({status:false, msg:"Please enter tags and subcategory values in Array"})};
+        //if(typeof(tags)!="object" || typeof(subcategory)!="object"){return res.status(400).send({status:false, msg:"Please enter tags and subcategory values in Array"})};
 
         if(data.isPublished==true){data.publishedAt=new Date().toLocaleString()}
         if(data.isDeleted==true){data.deletedAt = new Date().toLocaleString()}
 
+        if(files){
+            data.blogImage = await uploadFile(files[0])
+        }
         let result = await blogModel.create(data);
         res.status(201).send({ status: true, data: result });
 
@@ -66,7 +71,14 @@ const getBlogs = async function (req, res) {
     }
 }
 
+const blogDetails = async (req, res) =>{
+    let blogId = req.params.blogId;
+    if(!isValidObjectId(blogId)){return res.status(400).send({status:false, msg:"Please enter valid blog Id"})}
 
+    let blog = await blogModel.findById(blogId).populate("authorId")
+    if(!blog){return res.status(404).send({status:false, msg:"Blog not found"})}
+    res.status(200).send({status:true, data:blog})
+}
 //-----API to Update the fields of any Blog------
 
 const updateBlog = async function (req, res) {
@@ -78,8 +90,15 @@ const updateBlog = async function (req, res) {
         let data = req.body;
         let { title, body, tags, category, subcategory } = data
 
+        let files = req.files;
+        
+        if (files.length === 0 || !files) {data.blogImage=req.blog.blogImage}
+        else{data.blogImage = await uploadFile(files[0]) }
+        
+        
         let obj1 = {}
         let obj2 = {}
+        obj1.blogImage = data.blogImage
         if (title) { obj1.title = title }
         if (body) { obj1.body = body }
         if (category) { obj1.category = category }
@@ -96,6 +115,7 @@ const updateBlog = async function (req, res) {
             res.status(200).send({ status: true, data: result })
         }
     } catch (err) {
+        console.log(err)
         res.status(500).send({status:false, msg:err.message})
     }
 }
@@ -141,7 +161,6 @@ const deleteByField = async function (req, res) {
             if (result[i].authorId == req.decode.authorId) {
 
                 await blogModel.findByIdAndUpdate({_id:result[i]._id}, {$set:{isDeleted:true, deletedAt: new Date().toLocaleString()}})
-                console.log(x)
                 return res.status(200).send({status:true, msg:"Deleted"})
             }
         }
@@ -153,4 +172,4 @@ const deleteByField = async function (req, res) {
 }
 
 
-module.exports = { createBlog, getBlogs, updateBlog, deleteBlog, deleteByField }
+module.exports = { createBlog, blogDetails, getBlogs, updateBlog, deleteBlog, deleteByField }

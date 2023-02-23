@@ -13,6 +13,9 @@ const blogSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref: 'Author'
     },
+    blogImage:{
+        type:String
+    },
     tags:{
         type:[String]
 
@@ -36,7 +39,7 @@ const blogSchema = new mongoose.Schema({
     },
     isPublished:{
         type:Boolean,
-        default:false
+        default:true
     }
 },{timestamps:true})
 

@@ -25,7 +25,7 @@ const authorization = async function (req, res, next) {
 
     try {
         let blogId = req.params.blogId;
-        if(!isValidObjectId(blogId)){return res.status(400).send({ status: false, msg: "Please enter a valid Id" })}
+        if(!isValidObjectId(blogId)){return res.status(400).send({ status: false, msg: "Please enter a valid Author Id" })}
         
         let blogDocx = await blogModel.findById(blogId)
         if(!blogDocx){return res.status(404).send({ status: false, msg: "blog not found" })}
@@ -33,6 +33,7 @@ const authorization = async function (req, res, next) {
         if (req.decode.authorId != blogDocx.authorId) {
             return res.status(403).send({status: false, msg: "Authorization failed" })
         } else {
+            req.blog = blogDocx 
             next()
         }
     } catch (err) {

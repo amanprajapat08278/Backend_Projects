@@ -2,14 +2,22 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const {default:mongoose} = require("mongoose")
 const route = require("./router/router")
+const cors = require("cors")
+const multer = require("multer")
+const dotenv = require("dotenv")
 const app = express()
+dotenv.config()
+
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 
+app.use(multer().any())
+app.use(cors({origin:"*"}))
+
 app.use("/", route)
 
-mongoose.connect("mongodb+srv://amanprajapat82780:Lucky82780@newproject.3qdy8y3.mongodb.net/project_1?retryWrites=true&w=majority",{
+mongoose.connect(process.env.uri ,{
     useNewUrlParser:true
 }).then(()=>{console.log("Mongoose connected")})
 .catch((err)=>console.log(err))

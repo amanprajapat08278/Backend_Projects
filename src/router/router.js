@@ -6,11 +6,15 @@ const middleware = require("../middleware/authMiddleware")
 
 router.post("/authors",authorController.createAuthor)
 
-router.post("/blogs", middleware.authentication, blogController.createBlog)
+router.put("/authors",  middleware.authentication,authorController.updateAuthor)
 
-router.get("/blogs", middleware.authentication, blogController.getBlogs)
+router.post("/blogs", middleware.authentication,  blogController.createBlog)   //,
 
-router.put("/blogs/:blogId", middleware.authentication,  blogController.updateBlog)
+router.get("/blogs",  blogController.getBlogs)  //middleware.authentication,
+
+router.get("/blogs/:blogId",  blogController.blogDetails)  //middleware.authentication,
+
+router.put("/blogs/:blogId", middleware.authentication, middleware.authorization,  blogController.updateBlog)
 
 router.delete("/blogs/:blogId", middleware.authentication, middleware.authorization, blogController.deleteBlog)
 
