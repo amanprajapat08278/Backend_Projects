@@ -14,6 +14,7 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 app.use(multer().any())
 app.use(cors({origin:"*"}))
+cors.autocrlf=true
 
 app.use("/", route)
 
