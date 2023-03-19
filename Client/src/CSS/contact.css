@@ -1,0 +1,17 @@
+#bigBoxAbout{
+    height: 100vh;
+    border: 0.2px solid white;
+    background-image: url(../../public/loginBc.png);
+    background-repeat: no-repeat;
+    background-size: 100% 100vh;
+}
+
+.aboutBox {
+    /* border: 2px solid red; */
+    width: 28%;
+    height: 50vh;
+    margin: 7% 35%;
+    color: #115fbc;
+    font-weight: bold;
+    border: 2px solid rgb(190, 23, 148);
+}

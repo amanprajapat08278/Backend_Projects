@@ -26,7 +26,7 @@ const createBook = async (req, res) => {
         if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, message: "Please enter valid userId" }) }
 
         //autherisation.......
-        if (req.decodedToken.userId != userId) { return res.status(403).send({ status: false, msg: "Not Authorized !" }) }
+        if (req.decodedToken.userId != userId) { return res.status(403).send({ status: false, message: "Not Authorized !" }) }
 
         //title validation.......
         if (!title) { return res.status(400).send({ status: false, message: 'Title is required' }) }
@@ -99,7 +99,7 @@ const getBookById = async (req, res) => {
         let bookId = req.params.bookId;
         if (!isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Enter valid BookId" })
 
-        let bookData = await bookModel.findById(bookId).select({ __v: 0 }).lean()
+        let bookData = await bookModel.findById(bookId).select({ __v: 0 }).lean().populate("userId")
         if (!bookData) { return res.status(404).send({ status: false, message: "No such book found" }) }
         if (bookData.isDeleted == true) { return res.status(404).send({ status: false, message: "Book is Deleted" }) }
 
