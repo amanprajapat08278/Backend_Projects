@@ -124,8 +124,8 @@ const updateAuthor = async (req, res) => {
 
         if (email || email == "") {
             if (!validateEmail(email)) { return res.status(400).send({ status: false, msg: "Please enter a valid Email" }) }
-            // let authorData = await authorModel.findOne({ email: email })
-            // if (authorData) { return res.send({ status: false, msg: "Account already created" }) }
+            let authorData = await authorModel.findOne({ email: email })
+            if (authorData) { return res.send({ status: false, msg: "Account already created" }) }
         }
 
         if (password || password == "") {
