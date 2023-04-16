@@ -33,16 +33,16 @@ function Navbar({ user, userLogin }) {
                         <li className="nav-item">
                             <a className="nav-link active" href="/Contact">Contact</a>
                         </li>
-                        <li className="nav-item">
+                        {userLogin?<li className="nav-item">
                             <a className="nav-link active" href='/login' onClick={logout}>Logout</a>
-                        </li>
+                        </li>:<></>}
                     </ul>
                 </div>
                 <div id="navbarDP">
                     {userLogin ? <a href='/Profile'><img id="navbarProfile" src={user.profile} alt="Loading" /></a> :
                         <a className="nav-link active" href="/Login"><i id='loginIcon' class="fa-solid fa-user"></i></a>}
                 </div>
-                {/* <i className="fa-solid fa-magnifying-glass" id='search'></i> */}
+                
             </nav>
         </div>
     )

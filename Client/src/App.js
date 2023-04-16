@@ -14,7 +14,7 @@ import UpdateBlog from './Pages/UpdateBlog/UpdateBlog';
 
 function App() {
     let userLogin= false;
-    let user = (localStorage.getItem("user"))
+    let user = localStorage.getItem("user")
     
     if(!user){
         user = {}

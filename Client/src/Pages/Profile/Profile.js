@@ -34,6 +34,7 @@ function Profile({ user, userLogin }) {
 
         axios.put("http://localhost:4000/authors", options, config).then((res)=>{
             localStorage.removeItem("user")
+            console.log(res)
             localStorage.setItem("user", JSON.stringify(res.data.data))
             alert("Your profile has updated !")
         }).catch((err)=>{alert(err)})
